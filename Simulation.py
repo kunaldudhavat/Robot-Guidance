@@ -2,7 +2,7 @@ import random
 from tkinter import Tk, ttk
 import numpy as np
 
-from NoBot import solve_expected_times
+from NoBot import evaluate_expected_values
 from Ship import get_ship
 
 
@@ -27,7 +27,5 @@ def run_simulation_for_fixed_ship():
     random.seed(10)
     ship = get_ship()
     show_tkinter(ship)
-    t_no_bot_grid = solve_expected_times(ship)
-    # for row in t_no_bot_grid:
-    #     print(["{:.2f}".format(t) if t > 0 else 'Blocked' for t in row])
-    show_tkinter(t_no_bot_grid)
+    t_no_bot_grid = evaluate_expected_values(ship)
+    # show_tkinter(t_no_bot_grid)

@@ -1,69 +1,33 @@
 import numpy as np
-from scipy import linalg
+from Utility import de_flatten_index, is_neighbor, get_num_open_neighbors
+
+def get_rewards(ship):
+    rewards = np.where(ship != 'O', 0.0, -1.0)
+    return rewards
 
 
-def get_accessible_neighbors(ship, x, y):
-    neighbors = []
-    for dx, dy in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
-        nx, ny = x + dx, y + dy
-        if 0 <= nx < ship.shape[0] and 0 <= ny < ship.shape[1] and ship[nx, ny] == 'O':
-            neighbors.append((nx, ny))
-    return neighbors
+def get_transition_probability(ship: list[list[str]]):
+    transition_probs = np.zeros((121, 121), float)
+    for i in range(121):
+        for j in range(121):
+            x,y = de_flatten_index(i)
+            x1,y1 = de_flatten_index(j)
+            if ship[x][y]!='O' or ship[x1][y1]!='O':
+                continue
+            if is_neighbor(de_flatten_index(i), de_flatten_index(j)):
+                transition_probs[i][j] = 1 / get_num_open_neighbors(de_flatten_index(i), ship)
+    return transition_probs
 
 
-def solve_expected_times(ship: np.ndarray):
-    grid_size = ship.shape[0]
-    A = np.zeros((grid_size ** 2, grid_size ** 2))
-    b = np.zeros(grid_size ** 2)
-
-    for i in range(grid_size):
-        for j in range(grid_size):
-            if ship[i, j] == 'T':
-                # Teleport pad cell
-                A[i * grid_size + j, i * grid_size + j] = 1
-                b[i * grid_size + j] = 0
-            elif ship[i, j] == '#':
-                # Blocked cell
-                continue  # Blocked cells are not part of the system
-            else:
-                # Open cell
-                neighbors = get_accessible_neighbors(ship, i, j)
-                A[i * grid_size + j, i * grid_size + j] = 1
-                for (ni, nj) in neighbors:
-                    A[i * grid_size + j, ni * grid_size + nj] = -1 / len(neighbors)
-                b[i * grid_size + j] = 1
-
-    # Solve the system of linear equations
-    T_flattened = linalg.solve(A, b)
-    # Reshape the solution to match the grid
-    T_nobot = T_flattened.reshape((grid_size, grid_size))
-    return T_nobot
-
-
-# def solve_expected_times(ship, blocked_cells):
-#     # Initialize the matrix A and vector b for the linear equations system
-#     grid_size = ship.shape[0]
-#     A = np.zeros((grid_size ** 2, grid_size ** 2))
-#     b = np.zeros(grid_size ** 2)
-#
-#     # Populate the matrix A and vector b based on the neighbors and blocked cells
-#     for i in range(grid_size):
-#         for j in range(grid_size):
-#             if (i, j) in blocked_cells or (i, j) == (5, 5):
-#                 # Blocked cells and teleport pad have fixed expected time
-#                 A[i * grid_size + j, i * grid_size + j] = 1
-#                 if (i, j) == (5, 5):
-#                     b[i * grid_size + j] = 0  # Teleport pad has expected time of 0
-#             else:
-#                 # For other cells, calculate the equation based on accessible neighbors
-#                 neighbors = get_accessible_neighbors(i, j)
-#                 A[i * grid_size + j, i * grid_size + j] = 1
-#                 for (ni, nj) in neighbors:
-#                     A[i * grid_size + j, ni * grid_size + nj] = -1 / len(neighbors)
-#                 b[i * grid_size + j] = 1
-#
-#     # Solve the system of linear equations A * T = b
-#     T_flattened = linalg.solve(A, b)
-#     # Reshape the solution to match the grid
-#     T_nobot = T_flattened.reshape((grid_size, grid_size))
-#     return T_nobot
+def evaluate_expected_values(ship):
+    rewards = get_rewards(ship)
+    rewards = rewards.flatten()
+    transition_prob = get_transition_probability(ship)
+    I = np.identity(121,float)
+    factor = (I-transition_prob)
+    factor_inv = np.linalg.inv(factor)
+    expected_time_no_bot = np.matmul(factor_inv,rewards.T)
+    expected_time_no_bot = expected_time_no_bot.reshape((len(ship),len(ship)))
+    print(f'Calculated the expected values')
+    expected_time_no_bot = np.where(ship == '#',float('inf'),expected_time_no_bot)
+    print(expected_time_no_bot)
