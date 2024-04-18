@@ -1,8 +1,8 @@
 import random
 from tkinter import Tk, ttk
 import numpy as np
-from ExpectedTimeWithBot import policy_iteration
-from ExpectedTimeNoBot import evaluate_expected_values
+# from ExpectedTimeWithBot import policy_iteration
+# from ExpectedTimeNoBot import evaluate_expected_values
 from Ship import get_ship
 
 
@@ -28,5 +28,5 @@ def run_simulation_for_fixed_ship():
     ship = get_ship()
     # show_tkinter(ship)
     # t_no_bot_grid = evaluate_expected_values(ship)
-    x = policy_iteration(ship)
+    # x = policy_iteration(ship)
     # show_tkinter(t_no_bot_grid)

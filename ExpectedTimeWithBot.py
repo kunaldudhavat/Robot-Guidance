@@ -1,10 +1,10 @@
 import math
 import random
 import time
-
+from Ship import get_ship
 import numpy as np
 from Utility import de_vectorize_index_to_4D, get_vectorized_index_from_4D
-
+from Simulation import show_tkinter
 
 def crew_member_step(bot_posn: tuple[int, int], crew_posn: tuple[int, int], ship_layout: list[list[str]]) -> tuple[
     int, int]:
@@ -31,14 +31,14 @@ def get_valid_crew_member_moves(crew_posn: tuple[int, int],
 
 
 def get_valid_bot_moves(bot_posn: tuple[int, int], ship_layout: list[list[str]]) -> list[tuple[int, int]]:
-    directions = [(0, 0), (-1, 0), (-1, 1), (1, 0), (1, 1), (0, 1), (1, 1), (0, -1), (1, -1)]
+    directions = [(0, 0), (1,0), (-1,0), (0,-1), (0,1), (-1,-1), (1,1), (1,-1), (-1,1)]
     ship_dim = len(ship_layout)
     valid_bot_moves = []
     for dx, dy in directions:
         x = bot_posn[0] + dx
         y = bot_posn[1] + dy
-        if 0 <= x + dx < ship_dim and 0 <= y + dy < ship_dim and ship_layout[x][y] != '#':
-            valid_bot_moves.append((x + dx, y + dy))
+        if 0 <= x < ship_dim and 0 <= y < ship_dim and ship_layout[x][y] != '#':
+            valid_bot_moves.append((x, y))
     return valid_bot_moves
 
 
@@ -51,7 +51,8 @@ def get_action_space_by_bot_posn(ship_layout: list[list[str]]) -> dict[int, list
     ship_dim = len(ship_layout)
     for i in range(ship_dim):
         for j in range(ship_dim):
-            action_space[i * ship_dim + j] = get_valid_bot_moves((i, j), ship_layout)
+            if ship_layout[i][j]!='#':
+                action_space[i * ship_dim + j] = get_valid_bot_moves((i, j), ship_layout)
     return action_space
 
 
@@ -62,7 +63,7 @@ def initialize_random_policy(ship_layout: list[list[str]],
     for i in range(ship_dim * ship_dim):
         for j in range(ship_dim * ship_dim):
             state_index = 121 * i + j
-            policy[state_index] = random.choice(action_space_by_bot_posn[i])
+            policy[state_index] = random.choice(action_space_by_bot_posn[i] if i in action_space_by_bot_posn else (-1,-1))
     return policy
 
 
@@ -185,4 +186,8 @@ def get_transition_by_policy(current_policy: dict[int,tuple[int,int]], ship_layo
             transition_probs[i][j] = 1 / len(valid_crew_moves)
     return transition_probs
 
-# def value_iteration(ship_layout):
+if __name__ == '__main__':
+    random.seed(10)
+    ship = get_ship()
+    show_tkinter(ship)
+    print(policy_iteration(ship))

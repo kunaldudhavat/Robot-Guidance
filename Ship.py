@@ -15,8 +15,4 @@ def get_ship():
         ship[pos[0]][pos[1]] = '#'
     return ship
 
-def get_list_of_blocked_cells_for_flattened_ship(ship):
-    flattened_ship = ship.flatten()
-    block_cells_in_flattened_ship = np.where(flattened_ship == '#')
-    return block_cells_in_flattened_ship
 
