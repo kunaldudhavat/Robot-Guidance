@@ -43,3 +43,5 @@ def get_manhattan_dist(cell1: tuple[int, int], cell2: tuple[int, int]):
 
 def get_vectorized_index_from_4D(indexes:tuple[int,int,int,int],dim=11):
     return int(math.pow(dim,3)*indexes[0] + math.pow(dim,2)*indexes[1] + dim * indexes[2] + indexes[3])
+
+# def

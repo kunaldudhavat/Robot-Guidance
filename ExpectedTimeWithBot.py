@@ -2,7 +2,7 @@ import math
 import random
 import string
 import time
-
+from Policy import Policy
 import pandas as pd
 
 from Ship import get_ship
@@ -232,8 +232,13 @@ def convert_policy_to_actions(policy: dict[int, tuple[int, int]]):
     return policy_directions
 
 def save_policy_to_csv(policy:np.ndarray):
-    policy = policy.reshape((121,121))
-    df = pd.DataFrame(policy)
+    policies = []
+    for i in range(11):
+        for j in range(11):
+            for i1 in range(11):
+                for j1 in range(11):
+                    policies.append(Policy(i,j,i1,j1,policy[i][j][i1][j1]).get_dict())
+    df = pd.DataFrame(policies)
     df.to_csv('train_data.csv')
 
 
@@ -241,5 +246,6 @@ if __name__ == '__main__':
     random.seed(10)
     ship = get_ship()
     # show_tkinter(ship)
-    policy_directions = policy_iteration(ship)
-    save_policy_to_csv(policy_directions)
+    # policy_directions = policy_iteration(ship)
+    # save_policy_to_csv(policy_directions)
+    save_policy_to_csv(convert_policy_to_actions(initialize_random_policy(ship,get_action_space_by_state(ship))))
