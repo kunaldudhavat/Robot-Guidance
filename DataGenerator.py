@@ -12,7 +12,7 @@ class DataGenerator:
         for i in range(self.num_ship_layouts):
             start_time = time.time()
             random_seed = 20+i
-            file_name = 'Data_for_Generalizing_'+str(i)+'.csv'
+            file_name = 'Data_for_Generalizing_'+str(10+i)+'.csv'
             random.seed(random_seed)
             print(f'Generating {i}th ship with random seed set as {random_seed}')
             ship = get_ship()
