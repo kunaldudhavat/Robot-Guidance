@@ -6,13 +6,14 @@ from torch import nn
 class BotModel(nn.Module):
     def __init__(self):
         super(BotModel, self).__init__()
-        self.input_layer = nn.Linear(in_features=4, out_features=20, bias=True)
-        self.hidden_layer = nn.Linear(in_features=20, out_features=25, bias=True)
-        self.hidden_layer1 = nn.Linear(in_features=25, out_features=30, bias=True)
-        self.hidden_layer2 = nn.Linear(in_features=30, out_features=25, bias=True)
-        self.hidden_layer3 = nn.Linear(in_features=25, out_features=20, bias=True)
-        self.output_layer = nn.Linear(in_features=20, out_features=9, bias=True)
-        self.activation_function = nn.Sigmoid()
+        self.input_layer = nn.Linear(in_features=121, out_features=100, bias=True)
+        self.hidden_layer = nn.Linear(in_features=100, out_features=50, bias=True)
+        self.hidden_layer1 = nn.Linear(in_features=50, out_features=25, bias=True)
+        self.hidden_layer2 = nn.Linear(in_features=25, out_features=20, bias=True)
+        self.hidden_layer3 = nn.Linear(in_features=20, out_features=15, bias=True)
+        self.output_layer = nn.Linear(in_features=15, out_features=9, bias=True)
+        self.activation_function = nn.ReLU()
+        self.double()
 
     def forward(self, input_tensor):
         output = self.input_layer(input_tensor)

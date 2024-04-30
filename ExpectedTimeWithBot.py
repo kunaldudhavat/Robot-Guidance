@@ -125,14 +125,14 @@ def policy_iteration(ship_layout):
         print(
             f'Calculated transition prob and its shape is {transition_prob.shape} in {time.time() - start_time} seconds')
         current_values = update_values_by_policy(rewards, transition_prob)
-        current_delta = np.max(abs(current_values - prev_values))
+        current_delta = np.sum(abs(current_values - prev_values))
         print(f'Calculated values for the current policy and got delta:{current_delta} in {time.time() - start_time} '
               f'seconds')
         print(f'Update values of the shape:{current_values.shape}')
         if current_delta <= delta:
             break
-        if current_delta == prev_delta:
-            break
+        # if current_delta == prev_delta:
+        #     break
         current_policy = update_policy_by_current_values(current_values, rewards, action_space,
                                                          ship_layout)
         print(f'Updated policy based on the critic values in {time.time() - start_time} seconds')
@@ -231,7 +231,7 @@ def convert_policy_to_actions(policy: dict[int, tuple[int, int]]):
         policy_directions[bot_x][bot_y][crew_x][crew_y] = directions[direction_tuple]
     return policy_directions
 
-def save_policy_to_csv(policy:np.ndarray):
+def save_policy_to_csv(policy:np.ndarray, file_name= 'train_data.csv'):
     policies = []
     for i in range(11):
         for j in range(11):
@@ -239,13 +239,13 @@ def save_policy_to_csv(policy:np.ndarray):
                 for j1 in range(11):
                     policies.append(Policy(i,j,i1,j1,policy[i][j][i1][j1]).get_dict())
     df = pd.DataFrame(policies)
-    df.to_csv('train_data.csv')
+    df.to_csv(file_name)
 
 
 if __name__ == '__main__':
     random.seed(10)
     ship = get_ship()
-    # show_tkinter(ship)
-    # policy_directions = policy_iteration(ship)
-    # save_policy_to_csv(policy_directions)
-    save_policy_to_csv(convert_policy_to_actions(initialize_random_policy(ship,get_action_space_by_state(ship))))
+    show_tkinter(ship)
+    policy_directions = policy_iteration(ship)
+    save_policy_to_csv(policy_directions)
+    # save_policy_to_csv(convert_policy_to_actions(initialize_random_policy(ship,get_action_space_by_state(ship))))
