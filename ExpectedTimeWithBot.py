@@ -64,7 +64,7 @@ def get_action_space_by_state(ship_layout: list[list[str]]) -> dict[int, list[tu
                     vectorized_index = get_vectorized_index_from_4D((i, j, i1, j1))
                     if ship_layout[i1][j1] == 'T':
                         action_space[vectorized_index] = [(i, j)]
-                    elif ship_layout[i][j] != '#' and ship_layout[i1][j1]!= '#' and (i, j) != (i1, j1):
+                    elif ship_layout[i][j] != '#' and ship_layout[i1][j1] != '#' and (i, j) != (i1, j1):
                         action_space[vectorized_index] = get_valid_bot_moves((i, j), (i1, j1),
                                                                              ship_layout)
     return action_space
@@ -104,8 +104,9 @@ def initialize_values(ship_dim: int) -> np.ndarray:
     # vectorized to a 1D array for simple matrix multiplication during policy iteration value updates
     return np.zeros((ship_dim * ship_dim * ship_dim * ship_dim), float)
 
+
 def policy_iteration(ship_layout):
-    delta = 0.0
+    threshold = math.pow(10, -8)
     ship_dim = len(ship_layout)
     action_space = get_action_space_by_state(ship_layout)
     rewards = get_rewards(ship_layout)
@@ -129,7 +130,7 @@ def policy_iteration(ship_layout):
         print(f'Calculated values for the current policy and got delta:{current_delta} in {time.time() - start_time} '
               f'seconds')
         print(f'Update values of the shape:{current_values.shape}')
-        if current_delta <= delta:
+        if current_delta <= threshold:
             break
         # if current_delta == prev_delta:
         #     break
@@ -210,7 +211,7 @@ def get_transition_by_policy(current_policy: dict[int, tuple[int, int]], ship_la
 
 
 def convert_policy_to_actions(policy: dict[int, tuple[int, int]]):
-    policy_directions = np.ndarray((11, 11, 11, 11),dtype='object')
+    policy_directions = np.ndarray((11, 11, 11, 11), dtype='object')
     directions = {
         (0, 0): 'STAY',
         (0, 1): 'RIGHT',
@@ -231,13 +232,14 @@ def convert_policy_to_actions(policy: dict[int, tuple[int, int]]):
         policy_directions[bot_x][bot_y][crew_x][crew_y] = directions[direction_tuple]
     return policy_directions
 
-def save_policy_to_csv(policy:np.ndarray, file_name= 'train_data.csv'):
+
+def save_policy_to_csv(policy: np.ndarray, file_name='train_data.csv'):
     policies = []
     for i in range(11):
         for j in range(11):
             for i1 in range(11):
                 for j1 in range(11):
-                    policies.append(Policy(i,j,i1,j1,policy[i][j][i1][j1]).get_dict())
+                    policies.append(Policy(i, j, i1, j1, policy[i][j][i1][j1]).get_dict())
     df = pd.DataFrame(policies)
     df.to_csv(file_name)
 
