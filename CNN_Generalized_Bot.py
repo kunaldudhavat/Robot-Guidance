@@ -3,9 +3,9 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 
-class SimpleCNN(nn.Module):
+class Generalized_CNN(nn.Module):
     def __init__(self):
-        super(SimpleCNN, self).__init__()
+        super(Generalized_CNN, self).__init__()
         self.dropout = nn.Dropout(0.1)
         # First convolutional layer
         self.conv1 = nn.Conv2d(in_channels=5, out_channels=16, kernel_size=3, stride=1,padding=1)
@@ -35,5 +35,3 @@ class SimpleCNN(nn.Module):
         return x
 
 
-# Instantiate the model
-model = SimpleCNN()
