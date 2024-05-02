@@ -14,8 +14,11 @@ import torch.utils.data as data_utils
 from matplotlib import pyplot as plt
 from Ship import get_ship
 from Simulation import show_tkinter
+from sklearn.model_selection import train_test_split
 
-
+def test_train_split(x,y):
+    train_x, test_x, train_y, test_y = train_test_split(x,y, test_size=0.2, random_state=42)
+    return train_x, test_x, train_y, test_y
 def load_process_training_data(train_data_path: str):
     df = pd.read_csv(train_data_path)
     random.seed(10)
@@ -41,6 +44,9 @@ def load_process_training_data(train_data_path: str):
         temp_ship_int = np.transpose(temp_ship_int,(2,0,1))
         train_ship_x[i] = torch.tensor(temp_ship_int)
     return train_ship_x, train_y
+
+# def load_data_from_files(files:list[str]):
+
 
 
 def train(data_path):
@@ -76,9 +82,19 @@ def train(data_path):
     print(f'Best accuracy achieved at {max_accuracy_epoch}th epoch and the accuracy is {max_accuracy}')
     torch.save(best_model,
                'C:/Users/harsh/OneDrive/Desktop/Rutgers/Sem1/Intro to AI/Project 3/Robot-Guidance/best-CNN-Overfit.pt')
+
     plot_loss_by_epochs(losses)
     plot_loss_by_epochs(accuracies)
     # test_model(best_model)
+
+
+def edit_wall_cells(ship):
+    for i in range(len(ship)):
+        for j in range(len(ship)):
+            if i == 0 or j == 0 or i == len(ship) - 1 or j == len(ship) - 1:
+                ship[i][j] = '#'
+    return ship
+
 
 def plot_loss_by_epochs(losses):
     losses = losses[2:]
