@@ -6,17 +6,11 @@ import time
 import numpy as np
 import pandas as pd
 import torch
-# torch.set_default_tensor_type('torch.cuda.FloatTensor')
-# torch.set_default_device('cuda')
-from FC_Model_With_Flattened_Ship import BotModel
-from CNNModel_OverFit import SimpleCNN
 from CNN_Generalized_Bot import Generalized_CNN
 import torch.optim as optim
 from torch import nn
-import torch.utils.data as data_utils
 from matplotlib import pyplot as plt
 from Ship import get_ship
-from Simulation import show_tkinter
 from sklearn.model_selection import train_test_split
 
 def test_train_split(x,y):
@@ -72,10 +66,10 @@ def train(files):
     model.to(device)
     inputs, labels = load_data_from_files(files)
     train_x, test_x, train_y, test_y = test_train_split(inputs, labels)
-    train_x.to(device)
-    test_x.to(device)
-    train_y.to(device)
-    test_y.to(device)
+    train_x = train_x.to(device)
+    test_x = test_x.to(device)
+    train_y = train_y.to(device)
+    test_y = test_y.to(device)
     loss_func = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=0.01)
     epochs = 1200
@@ -88,6 +82,7 @@ def train(files):
     max_accuracy = 0
     max_accuracy_epoch = -1
     best_model = None
+    model.train()
     for i in range(epochs):
         start_time = time.time()
         optimizer.zero_grad()
@@ -139,6 +134,7 @@ def get_probs(logits):
 def test_model(model_file, test_x, test_y):
     model = Generalized_CNN()
     model.load_state_dict(torch.load('C:/Users/harsh/OneDrive/Desktop/Rutgers/Sem1/Intro to AI/Project 3/Robot-Guidance/best-CNN-Overfit.pt'))
+    model.eval()
     logits = model(test_x)
     probs = get_probs(logits)
     acc = torch.sum(torch.argmax(test_y, dim=1) == torch.argmax(probs, dim=1)) / test_y.shape[0]
@@ -150,21 +146,21 @@ if __name__ == '__main__':
     files = {
         'Data_for_Generalizing_0.csv':0,
         'Data_for_Generalizing_1.csv':1,
-        # 'Data_for_Generalizing_2.csv':2,
-        # 'Data_for_Generalizing_3.csv':3,
-        # 'Data_for_Generalizing_4.csv':4,
-        # 'Data_for_Generalizing_5.csv':5,
-        # 'Data_for_Generalizing_6.csv':6,
-        # 'Data_for_Generalizing_7.csv':7,
-        # 'Data_for_Generalizing_8.csv':8,
-        # 'Data_for_Generalizing_9.csv':9,
-        # 'Data_for_Generalizing_10.csv':10,
-        # 'Data_for_Generalizing_11.csv':11,
-        # 'Data_for_Generalizing_12.csv':12,
-        # 'Data_for_Generalizing_13.csv':13,
-        # 'Data_for_Generalizing_14.csv':14,
-        # 'Data_for_Generalizing_15.csv':15,
-        # 'Data_for_Generalizing_16.csv':16
+        'Data_for_Generalizing_2.csv':2,
+        'Data_for_Generalizing_3.csv':3,
+        'Data_for_Generalizing_4.csv':4,
+        'Data_for_Generalizing_5.csv':5,
+        'Data_for_Generalizing_6.csv':6,
+        'Data_for_Generalizing_7.csv':7,
+        'Data_for_Generalizing_8.csv':8,
+        'Data_for_Generalizing_9.csv':9,
+        'Data_for_Generalizing_10.csv':10,
+        'Data_for_Generalizing_11.csv':11,
+        'Data_for_Generalizing_12.csv':12,
+        'Data_for_Generalizing_13.csv':13,
+        'Data_for_Generalizing_14.csv':14,
+        'Data_for_Generalizing_15.csv':15,
+        'Data_for_Generalizing_16.csv':16
     }
     train(files)
     # test_model()
