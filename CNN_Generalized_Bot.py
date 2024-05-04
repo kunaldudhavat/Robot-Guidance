@@ -12,9 +12,10 @@ class Generalized_CNN(nn.Module):
         # Second convolutional layer
         self.conv2 = nn.Conv2d(in_channels=16, out_channels=32, kernel_size=3, stride=1,padding=1)
         # Fully connected layers
-        self.fc1 = nn.Linear(32 * 3 * 3, 64)
-        self.fc2 = nn.Linear(64, 32)
-        self.fc3 = nn.Linear(32, 9)
+        self.fc1 = nn.Linear(32 * 3 * 3, 128)
+        self.fc2 = nn.Linear(128, 64)
+        self.fc3 = nn.Linear(64, 32)
+        self.fc4 = nn.Linear(32, 9)
         self.double()
 
     def forward(self, x):
@@ -31,7 +32,8 @@ class Generalized_CNN(nn.Module):
         # Fully connected layers
         x = F.relu(self.fc1(x))
         x = F.relu(self.fc2(x))
-        x = self.fc3(x)
+        x = F.relu(self.fc3(x))
+        x = self.fc4(x)
         return x
 
 

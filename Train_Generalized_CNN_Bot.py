@@ -71,8 +71,8 @@ def train(files):
     train_y = train_y.to(device)
     test_y = test_y.to(device)
     loss_func = nn.CrossEntropyLoss()
-    optimizer = optim.Adam(model.parameters(), lr=0.01)
-    epochs = 1200
+    optimizer = optim.Adam(model.parameters(), lr=0.02)
+    epochs = 10000
     print(f'Shape of train x is {train_x.shape}')
     print(f'Shape of train y is {train_y.shape}')
     print(f'Shape of test x is {test_x.shape}')
@@ -104,11 +104,10 @@ def train(files):
         print(f'Completed epoch number {i} in {time.time()-start_time} seconds')
     print(f'Best accuracy achieved at {max_accuracy_epoch}th epoch and the accuracy is {max_accuracy}')
     torch.save(best_model,
-               'C:/Users/harsh/OneDrive/Desktop/Rutgers/Sem1/Intro to AI/Project 3'
-               '/Robot-Guidance/best-CNN-Generalizing.pt')
+               '/common/home/kd958/PycharmProjects/Robot-Guidance/best-CNN-Generalizing.pt')
 
-    plot_loss_by_epochs(losses)
-    plot_loss_by_epochs(accuracies)
+    plot_loss_by_epochs(losses, 'training_losses.png')
+    plot_loss_by_epochs(accuracies, 'training_accuracies.png')
     test_model(best_model,test_x, test_y)
 
 
@@ -120,12 +119,21 @@ def edit_wall_cells(ship):
     return ship
 
 
-def plot_loss_by_epochs(losses):
-    losses = losses[2:]
-    epochs = [i for i in range(len(losses))]
-    plt.plot(epochs, losses)
-    plt.show()
+def plot_loss_by_epochs(losses, file_name = 'plot.png'):
+    # First, check if losses is a list and convert to tensor if it is
+    if isinstance(losses, list):
+        losses = torch.tensor(losses, dtype=torch.float32)  # Ensuring the data type is suitable for conversion
 
+    # Move the tensor to CPU and convert to numpy for plotting
+    losses = losses[2:].cpu().numpy()  # Skip the first two elements and convert
+
+    # Create a range for the epochs based on the length of the adjusted losses
+    epochs = [i for i in range(len(losses))]
+
+    # Plotting the losses against the epochs
+    plt.plot(epochs, losses)
+    plt.savefig(file_name)
+    plt.close()
 
 def get_probs(logits):
     return nn.Softmax(dim=1)(logits)
@@ -133,7 +141,9 @@ def get_probs(logits):
 
 def test_model(model_file, test_x, test_y):
     model = Generalized_CNN()
-    model.load_state_dict(torch.load('C:/Users/harsh/OneDrive/Desktop/Rutgers/Sem1/Intro to AI/Project 3/Robot-Guidance/best-CNN-Overfit.pt'))
+    model.load_state_dict(torch.load('/common/home/kd958/PycharmProjects/Robot-Guidance/best-CNN-Generalizing.pt'))
+    device = torch.device("cuda")
+    model.to(device)
     model.eval()
     logits = model(test_x)
     probs = get_probs(logits)
