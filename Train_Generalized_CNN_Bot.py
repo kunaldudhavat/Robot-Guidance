@@ -50,7 +50,7 @@ def load_data_from_files(files:dict[str,int]):
     print('Collecting the data for all files and then merging')
     for file_name in files:
         print(f'Loading data from {file_name} file and processing it')
-        train_x, train_y = load_process_training_data(file_name,10+files[file_name])
+        train_x, train_y = load_process_training_data(file_name, 10+files[file_name])
         print(f'Processed data from {file_name} file')
         if merged_train_x is None:
             merged_train_x = train_x
