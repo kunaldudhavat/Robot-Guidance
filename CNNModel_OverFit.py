@@ -3,9 +3,9 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 
-class SimpleCNN(nn.Module):
+class CNN_Model_Overfit(nn.Module):
     def __init__(self):
-        super(SimpleCNN, self).__init__()
+        super(CNN_Model_Overfit, self).__init__()
         # First convolutional layer
         self.conv1 = nn.Conv2d(in_channels=5, out_channels=16, kernel_size=3, stride=1,padding=1)
         # Second convolutional layer
@@ -34,4 +34,4 @@ class SimpleCNN(nn.Module):
 
 
 # Instantiate the model
-model = SimpleCNN()
+model = CNN_Model_Overfit()

@@ -2,7 +2,7 @@ import argparse
 
 import torch
 
-from CNNModel_OverFit import SimpleCNN
+from CNNModel_OverFit import CNN_Model_Overfit
 from Simulation import run_simulation_for_fixed_ship, run_simulation_for_learned_bot, \
     run_simulation_for_learned_bot_for_k_positions_of_bot_and_crew
 from DataGenerator import DataGenerator
