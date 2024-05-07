@@ -156,8 +156,6 @@ def get_argmax_action(current_values, current_state, action_space, rewards, ship
     ship_dim = len(ship_layout)
     bot_x, bot_y, crew_x, crew_y = de_vectorize_index_to_4D(current_state)
     valid_actions = action_space[current_state]
-    if current_state == 1242:
-        print('hi')
     max_value = float('-inf')
     argmax_action = None
     for action in valid_actions:

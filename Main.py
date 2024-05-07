@@ -23,7 +23,8 @@ def main():
     #     data_generator = DataGenerator(args.num_ship)
     #     data_generator.generate_data()
 
-    model_path = '/common/home/kd958/PycharmProjects/Robot-Guidance/best-CNN-Overfit_new.pt'
+    model_path = ('C:/Users/harsh/OneDrive/Desktop/Rutgers/Sem1/Intro to AI/Project 3/'
+                  'Robot-Guidance/best-CNN-Overfit_new.pt')
     model = SimpleCNN()
     model.load_state_dict(torch.load(model_path))
     model = model.float()  # Ensure the model is using float32

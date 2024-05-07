@@ -1,3 +1,4 @@
+import copy
 import itertools
 import random
 from tkinter import Tk, ttk
@@ -49,18 +50,22 @@ def generate_position_pairs(ship, k=100):
 def run_simulation_for_learned_bot(model, ship, crew_position, bot_position):
     timestep = 0
     ship[crew_position[0], crew_position[1]] = 'C'
-    ship[bot_position[0], bot_position[1]] = 'O'
+    ship[bot_position[0], bot_position[1]] = 'B'
+    init_bot_posn = copy.deepcopy(bot_position)
+    init_crew_posn = copy.deepcopy(crew_position)
     # print(f"Crew initial position: {crew_position}")
     # print(f"Bot initial position: {bot_position}")
     while crew_position != (5, 5):
         temp = bot_position
-        ship, bot_position = bot_step(model, ship, bot_position)
+        ship, bot_position = bot_step(model, ship, bot_position, crew_position)
         ship, crew_position = crew_member_step(ship, bot_position, crew_position)
         if timestep > 2000:
-            print("Couldn't reach teleport pad in 2000 steps")
-            return
+            print(f"FAILURE: Couldn't reach teleport pad in 2000 steps within initial bot position: {init_bot_posn} and "
+                  f"initial crew position as {init_crew_posn}")
+            return timestep
         timestep += 1
-    print(f"Time taken for crew to reach teleport pad for this configuration: {timestep}")
+    print(f"SUCCESS!: Time taken for crew to reach teleport pad for this configuration: {timestep};"
+          f" initial bot position is {init_bot_posn} and initial crew position is {init_crew_posn}")
     return timestep
 
 
@@ -69,11 +74,18 @@ def run_simulation_for_learned_bot_for_k_positions_of_bot_and_crew(model, k):
     ship = get_ship()
     posn_pairs = generate_position_pairs(ship, k)
     time_taken = []
-    for i in range(k):
+    num_success = 0
+    for i in range(1):
         ship = get_ship()
-        crew_posn, bot_posn = posn_pairs[i]
+        # crew_posn, bot_posn = posn_pairs[i]
+        crew_posn = (0,6)
+        bot_posn = (7,1)
+        print(f'Running simulation number: {i}')
         time = run_simulation_for_learned_bot(model, ship, crew_posn, bot_posn)
         time_taken.append(time)
+    time_taken = list(filter(lambda a: a != 2, time_taken))
+    success_rate = len(time_taken)/100
+    print(f'Success rate for the bot when run for 100 simulations is {success_rate}')
     average_time = np.mean(time_taken)
     print(f"Time taken for all pairs: {time_taken}")
     print(f"The average time for getting to teleport pad: {average_time}")
@@ -93,11 +105,10 @@ def tensorize_ship(ship: np.ndarray):
     one_hot_encoded_ship = pd.get_dummies(df).to_numpy().reshape((13, 13, 5))
     ship_tensor = np.transpose(one_hot_encoded_ship, (2, 0, 1))
     input_tensor = torch.tensor(ship_tensor).unsqueeze(0).float()
-
     return input_tensor
 
 
-def bot_step(model_path, ship, bot_position):
+def bot_step(model_path, ship, bot_position, crew_position):
     input_tensor = tensorize_ship(ship)
     input_tensor = input_tensor.float()
     action = predict_direction(input_tensor, model_path)
@@ -109,13 +120,13 @@ def bot_step(model_path, ship, bot_position):
     else:
         # print("Invalid move, hence staying in place!")
         bot_new_posn = bot_position  # Bot stays in place if move is invalid
-
     return ship, bot_new_posn
 
 
 def crew_member_step(ship, bot_posn, crew_posn):
     crew_valid_next_positions = get_valid_crew_member_moves(crew_posn, bot_posn, ship)
-    if len(crew_valid_next_positions) == 0: return ship, crew_posn
+    if len(crew_valid_next_positions) == 0:
+        return ship, crew_posn
     next_crew_posn = random.choice(crew_valid_next_positions)
     ship[next_crew_posn[0]][next_crew_posn[1]] = 'C'
     ship[crew_posn[0]][crew_posn[1]] = 'O'
