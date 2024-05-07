@@ -24,6 +24,7 @@ def load_process_training_data(train_data_path: str,random_seed:int):
     df = df.dropna()
     train_x = df.drop('Optimal_Direction', axis=1).drop('Unnamed: 0', axis=1)
     train_y = df['Optimal_Direction']
+    train_y = train_y.astype(pd.CategoricalDtype(categories=['STAY', 'RIGHT', 'LEFT', 'DOWN', 'UP', 'NW', 'SW', 'SE', 'NE']))
     train_y = pd.get_dummies(train_y)
     train_x = torch.from_numpy(train_x.values).float()
     train_y = torch.from_numpy(train_y.values).float()
@@ -41,6 +42,7 @@ def load_process_training_data(train_data_path: str,random_seed:int):
         temp_ship_int = np.transpose(temp_ship_int,(2,0,1))
         train_ship_x[i] = torch.tensor(temp_ship_int)
     return train_ship_x, train_y
+
 
 def load_data_from_files(files:dict[str,int]):
     merged_train_x = None

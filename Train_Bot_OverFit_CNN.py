@@ -24,21 +24,23 @@ def load_process_training_data(train_data_path: str):
     df = df.dropna()
     train_x = df.drop('Optimal_Direction', axis=1).drop('Unnamed: 0', axis=1)
     train_y = df['Optimal_Direction']
+    train_y = train_y.astype(
+        pd.CategoricalDtype(categories=['STAY', 'RIGHT', 'LEFT', 'DOWN', 'UP', 'NW', 'SW', 'SE', 'NE']))
     train_y = pd.get_dummies(train_y)
     train_x = torch.from_numpy(train_x.values).float()
     train_y = torch.from_numpy(train_y.values).float()
     tensor = torch.ones(())
-    train_ship_x = tensor.new_empty(size=(train_x.shape[0], 5,13,13), dtype=float)
+    train_ship_x = tensor.new_empty(size=(train_x.shape[0], 5, 13, 13), dtype=float)
     for i in range(train_x.shape[0]):
         temp_ship = padded_ship.copy()
         bot_x, bot_y, crew_x, crew_y = train_x[i]
-        temp_ship[int(bot_x.item())+1][int(bot_y.item())+1] = 'B'
-        temp_ship[int(crew_x.item())+1][int(crew_y.item())+1] = 'C'
+        temp_ship[int(bot_x.item()) + 1][int(bot_y.item()) + 1] = 'B'
+        temp_ship[int(crew_x.item()) + 1][int(crew_y.item()) + 1] = 'C'
         df = pd.DataFrame(temp_ship.reshape((169)))
-        df = df.astype(pd.CategoricalDtype(categories=['B','C','T','#','O']))
+        df = df.astype(pd.CategoricalDtype(categories=['B', 'C', 'T', '#', 'O']))
         temp_ship_int = pd.get_dummies(df)
-        temp_ship_int = temp_ship_int.values.reshape((13,13,5))
-        temp_ship_int = np.transpose(temp_ship_int,(2,0,1))
+        temp_ship_int = temp_ship_int.values.reshape((13, 13, 5))
+        temp_ship_int = np.transpose(temp_ship_int, (2, 0, 1))
         train_ship_x[i] = torch.tensor(temp_ship_int)
     return train_ship_x, train_y
 
@@ -75,10 +77,11 @@ def train(data_path):
         optimizer.step()
     print(f'Best accuracy achieved at {max_accuracy_epoch}th epoch and the accuracy is {max_accuracy}')
     torch.save(best_model,
-               'C:/Users/harsh/OneDrive/Desktop/Rutgers/Sem1/Intro to AI/Project 3/Robot-Guidance/best-CNN-Overfit.pt')
+               '/common/home/kd958/PycharmProjects/Robot-Guidance/best-CNN-Overfit_new.pt')
     plot_loss_by_epochs(losses)
     plot_loss_by_epochs(accuracies)
     # test_model(best_model)
+
 
 def plot_loss_by_epochs(losses):
     losses = losses[2:]
@@ -94,14 +97,15 @@ def get_probs(logits):
 def test_model():
     train_x, train_y = load_process_training_data('train_data.csv')
     model = SimpleCNN()
-    model.load_state_dict(torch.load('C:/Users/harsh/OneDrive/Desktop/Rutgers/Sem1/Intro to AI/Project 3/Robot-Guidance/best-CNN-Overfit.pt'))
+    model.load_state_dict(torch.load('/common/home/kd958/PycharmProjects/Robot-Guidance/best-CNN-Overfit_new.pt'))
     logits = model(train_x)
     probs = get_probs(logits)
     acc = torch.sum(torch.argmax(train_y, dim=1) == torch.argmax(probs, dim=1)) / train_y.shape[0]
     print(f'Accuracy achieved with the best model is:{acc}')
 
+
 # def process_data():
 
 if __name__ == '__main__':
-    # train('train_data.csv')
-    test_model()
+    train('train_data.csv')
+    #test_model()
