@@ -34,6 +34,8 @@ def get_valid_crew_member_moves(crew_posn: tuple[int, int],
             valid_next_positions.append((x + dx, y + dy))
     if bot_posn in valid_next_positions:
         valid_next_positions.remove(bot_posn)
+    if len(valid_next_positions) == 0:
+        valid_next_positions.append(crew_posn)
     return valid_next_positions
 
 

@@ -74,18 +74,15 @@ def run_simulation_for_learned_bot_for_k_positions_of_bot_and_crew(model, k):
     ship = get_ship()
     posn_pairs = generate_position_pairs(ship, k)
     time_taken = []
-    num_success = 0
-    for i in range(1):
+    for i in range(k):
         ship = get_ship()
-        # crew_posn, bot_posn = posn_pairs[i]
-        crew_posn = (0,6)
-        bot_posn = (7,1)
+        crew_posn, bot_posn = posn_pairs[i]
         print(f'Running simulation number: {i}')
         time = run_simulation_for_learned_bot(model, ship, crew_posn, bot_posn)
         time_taken.append(time)
-    time_taken = list(filter(lambda a: a != 2, time_taken))
-    success_rate = len(time_taken)/100
-    print(f'Success rate for the bot when run for 100 simulations is {success_rate}')
+    time_taken = list(filter(lambda a: a != 2001, time_taken))
+    success_rate = len(time_taken)/k
+    print(f'Success rate for the bot when run for 1000 simulations is {success_rate}')
     average_time = np.mean(time_taken)
     print(f"Time taken for all pairs: {time_taken}")
     print(f"The average time for getting to teleport pad: {average_time}")

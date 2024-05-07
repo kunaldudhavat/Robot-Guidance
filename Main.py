@@ -23,13 +23,15 @@ def main():
     #     data_generator = DataGenerator(args.num_ship)
     #     data_generator.generate_data()
 
-    model_path = ('C:/Users/harsh/OneDrive/Desktop/Rutgers/Sem1/Intro to AI/Project 3/'
-                  'Robot-Guidance/best-CNN-Overfit_new.pt')
-    model = SimpleCNN()
-    model.load_state_dict(torch.load(model_path))
-    model = model.float()  # Ensure the model is using float32
-    model.eval()  # Switch the model to evaluation mode
-    run_simulation_for_learned_bot_for_k_positions_of_bot_and_crew(model, 100)
+    # model_path = ('C:/Users/harsh/OneDrive/Desktop/Rutgers/Sem1/Intro to AI/Project 3/'
+    #               'Robot-Guidance/best-CNN-Overfit_new1.pt')
+    # model = SimpleCNN()
+    # model.load_state_dict(torch.load(model_path))
+    # model = model.float()  # Ensure the model is using float32
+    # model.eval()  # Switch the model to evaluation mode
+    # run_simulation_for_learned_bot_for_k_positions_of_bot_and_crew(model, 1000)
+    data_generator = DataGenerator(10)
+    data_generator.generate_data()
 
 
 if __name__ == '__main__':
