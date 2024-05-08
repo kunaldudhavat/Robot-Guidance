@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 import torch
 from torch import nn
-
+from ExpectedTimeNoBot import evaluate_expected_values
 from Ship import get_ship
 
 
@@ -27,13 +27,10 @@ def show_tkinter(ship: np.ndarray):
     root.mainloop()
 
 
-def run_simulation_for_fixed_ship():
+def get_exp_time_no_bot_for_fixed_ship():
     random.seed(10)
     ship = get_ship()
-    # show_tkinter(ship)
-    # t_no_bot_grid = evaluate_expected_values(ship)
-    # x = policy_iteration(ship)
-    # show_tkinter(t_no_bot_grid)
+    t_no_bot_grid = evaluate_expected_values(ship)
 
 
 def generate_position_pairs(ship, k=100):
@@ -160,3 +157,7 @@ def predict_direction(data, model):
         'NE': (-1, 1)
     }
     return directions[possible_directions[predicted_label]]
+
+
+if __name__ == '__main__':
+    get_exp_time_no_bot_for_fixed_ship()

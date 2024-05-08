@@ -71,7 +71,7 @@ def train(data_path):
         optimizer.step()
     print(f'Best accuracy achieved at {max_accuracy_epoch}th epoch and the accuracy is {max_accuracy}')
     torch.save(best_model,
-               'C:/Users/harsh/OneDrive/Desktop/Rutgers/Sem1/Intro to AI/Project 3/Robot-Guidance/best-CNN-Overfit_new1.pt')
+               '/Robot-Guidance/best-CNN-Overfit.pt')
     plot_loss_by_epochs(losses)
     plot_loss_by_epochs(accuracies)
     # test_model(best_model)
@@ -91,7 +91,7 @@ def get_probs(logits):
 def test_model():
     train_x, train_y = load_process_training_data('train_data.csv')
     model = CNN_Model_Overfit()
-    model.load_state_dict(torch.load('C:/Users/harsh/OneDrive/Desktop/Rutgers/Sem1/Intro to AI/Project 3/Robot-Guidance/best-CNN-Overfit_new1.pt'))
+    model.load_state_dict(torch.load('/Robot-Guidance/best-CNN-Overfit.pt'))
     logits = model(train_x)
     probs = get_probs(logits)
     acc = torch.sum(torch.argmax(train_y, dim=1) == torch.argmax(probs, dim=1)) / train_y.shape[0]
@@ -99,4 +99,3 @@ def test_model():
 
 if __name__ == '__main__':
     train('train_data.csv')
-    #test_model()

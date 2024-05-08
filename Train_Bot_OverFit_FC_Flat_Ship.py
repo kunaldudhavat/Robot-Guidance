@@ -99,7 +99,7 @@ def get_probs(logits):
 def test_model():
     train_x, train_y = load_process_training_data('train_data.csv')
     model = FC_Model_With_Flattened_Ship()
-    model.load_state_dict(torch.load('C:/Users/harsh/OneDrive/Desktop/Rutgers/Sem1/Intro to AI/Project 3/Robot-Guidance/best.pt'))
+    model.load_state_dict(torch.load('C:/Users/harsh/OneDrive/Desktop/Rutgers/Sem1/Intro to AI/Project 3/Robot-Guidance/best-FC-Overfit.pt'))
     logits = model(train_x)
     probs = get_probs(logits)
     acc = torch.sum(torch.argmax(train_y, dim=1) == torch.argmax(probs, dim=1)) / train_y.shape[0]

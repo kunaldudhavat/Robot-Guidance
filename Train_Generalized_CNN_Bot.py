@@ -172,17 +172,7 @@ if __name__ == '__main__':
         'Data_for_Generalizing_6.csv': 6,
         'Data_for_Generalizing_7.csv': 7,
         'Data_for_Generalizing_8.csv': 8,
-        'Data_for_Generalizing_9.csv': 9,
-        # 'Data_for_Generalizing_10.csv': 10,
-        # 'Data_for_Generalizing_11.csv': 11,
-        # 'Data_for_Generalizing_12.csv': 12,
-        # # 'Data_for_Generalizing_13.csv': 13,
-        # # 'Data_for_Generalizing_14.csv': 14,
-        # # 'Data_for_Generalizing_15.csv': 15,
-        # # 'Data_for_Generalizing_16.csv': 16,
-        # # 'Data_for_Generalizing_17.csv': 17,
-        # # 'Data_for_Generalizing_18.csv': 18,
-        # # 'Data_for_Generalizing_19.csv': 19
+        'Data_for_Generalizing_9.csv': 9
     }
     train(files)
     # test_model()
