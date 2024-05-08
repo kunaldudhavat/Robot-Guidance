@@ -1,14 +1,13 @@
 import math
 import random
-import string
 import time
 from Policy import Policy
 import pandas as pd
-
 from Ship import get_ship
 import numpy as np
 from Utility import de_vectorize_index_to_4D, get_vectorized_index_from_4D
 from Simulation import show_tkinter
+from ExpectedTimeNoBot import get_heatmap
 
 
 def crew_member_step(bot_posn: tuple[int, int], crew_posn: tuple[int, int], ship_layout: list[list[str]]) -> tuple[
@@ -141,9 +140,23 @@ def policy_iteration(ship_layout):
         print(f'Updated policy based on the critic values in {time.time() - start_time} seconds')
         print(f'Completed iteration {timestep} in {time.time() - start_time} seconds.')
         timestep += 1
+    get_optimal_bot_position(ship_layout, current_values)
     policy_directions = convert_policy_to_actions(current_policy)
     return policy_directions
 
+def get_optimal_bot_position(ship_layout, expected_times):
+    expected_times_by_bot_posn = np.zeros((len(ship_layout),len(ship_layout)))
+    expected_times = expected_times.reshape(11,11,11,11)
+    for i in range(len(ship_layout)):
+        for j in range(len(ship_layout)):
+            if ship_layout[i][j] != '#':
+                expected_times_by_bot_posn[i][j] = -np.mean(expected_times[i,j,:,:])
+            else:
+                expected_times_by_bot_posn[i][j] = float('inf')
+    get_heatmap(expected_times_by_bot_posn)
+    optimal_bot_posn = np.unravel_index(np.argmin(expected_times_by_bot_posn,axis=None),
+                                        expected_times_by_bot_posn.shape)
+    print(f'Optimal bot position for randomly spawned crew is {optimal_bot_posn}')
 
 def update_policy_by_current_values(current_values, rewards, action_space, ship_layout):
     ship_dim = len(ship_layout)

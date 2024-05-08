@@ -114,13 +114,11 @@ class Value_Iteration():
                             alien_distances.append((distance, new_alien_pos))
                     possible_alien_next_pos = []
                     if self.manhattan_distance(new_bot_pos, alien_pos) == 1:
-                        # Crew tries to maximize distance
                         max_distance = max(alien_distances, key=lambda x: x[0])
                         for distance, position in alien_distances:
                             if distance == max_distance[0]:
                                 possible_alien_next_pos.append(position)
                     else:
-                        # Random movement
                         for _, position in alien_distances:
                             possible_alien_next_pos.append(position)
                     for new_alien_pos in possible_alien_next_pos:
@@ -180,7 +178,6 @@ def get_save_optimal_policy():
 
 def decode_policy(policy):
     decoded_policy = np.ndarray((11, 11, 11, 11), dtype='object')
-    # print
     for x in range(14641):
         (i, j), (k, l) = decode_state(x)
         decoded_policy[i][j][k][l] = policy[x]
