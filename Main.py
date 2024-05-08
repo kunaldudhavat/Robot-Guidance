@@ -5,14 +5,13 @@ import torch
 from CNN_Generalized_Bot import Generalized_CNN
 from ExpectedTimeNoBot import evaluate_expected_values, get_expected_time
 from Ship import get_ship
-from Simulation import run_simulation_for_fixed_ship, run_simulation_for_learned_bot, \
+from Simulation import run_simulation_for_learned_bot, \
     run_simulation_for_learned_bot_for_k_positions_of_bot_and_crew, show_tkinter
 from DataGenerator import DataGenerator
 
 
 def main():
-    model_path = ('/common/home/kd958/PycharmProjects/'
-                  'Robot-Guidance/best-CNN-Generalizing.pt')
+    model_path = ('C:/Users/harsh/OneDrive/Desktop/Rutgers/Sem1/Intro to AI/Project 3/Robot-Guidance/best-CNN-Generalizing.pt')
     model = Generalized_CNN()
     model.load_state_dict(torch.load(model_path))
     model = model.float()  # Ensure the model is using float32
