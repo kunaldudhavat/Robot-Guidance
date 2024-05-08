@@ -1,54 +1,28 @@
 import copy
 import random
-import sys
-
-import numpy as np
 import pandas as pd
 import torch
-
-from FC_Model_With_Flattened_Ship import BotModel
-from CNNModel_OverFit import SimpleCNN
 import torch.optim as optim
 from torch import nn
-import torch.utils.data as data_utils
 from matplotlib import pyplot as plt
 from Ship import get_ship
-from Simulation import show_tkinter
-
+from FC_Model_With_Coordinates import FC_Model_With_Coordinates
 
 def load_process_training_data(train_data_path: str):
     df = pd.read_csv(train_data_path)
-    map_cells = {
-        'B': 3,
-        'C': 2,
-        'O': 1,
-        '#': 0,
-        'T': 1
-    }
-    # 0 for wall cells
-    random.seed(10)
-    ship = get_ship()
-    # show_tkinter(ship)
     df = df.dropna()
     train_x = df.drop('Optimal_Direction', axis=1).drop('Unnamed: 0', axis=1)
     train_y = df['Optimal_Direction']
+    train_y = train_y.astype(
+        pd.CategoricalDtype(categories=['STAY', 'RIGHT', 'LEFT', 'DOWN', 'UP', 'NW', 'SW', 'SE', 'NE']))
     train_y = pd.get_dummies(train_y)
     train_x = torch.from_numpy(train_x.values).float()
     train_y = torch.from_numpy(train_y.values).float()
-    tensor = torch.ones(())
-    train_ship_x = tensor.new_empty(size=(train_x.shape[0], 121), dtype=float)
-    for i in range(train_x.shape[0]):
-        temp_ship = ship.copy()
-        bot_x, bot_y, crew_x, crew_y = train_x[i]
-        temp_ship[int(bot_x.item())][int(bot_y.item())] = 'B'
-        temp_ship[int(crew_x.item())][int(crew_y.item())] = 'C'
-        temp_ship_int = [[map_cells[s] for s in temp_ship[i]] for i in range(len(temp_ship))]
-        train_ship_x[i] = torch.tensor(temp_ship_int).flatten()
-    return train_ship_x, train_y
+    return train_x, train_y
 
 
 def train(data_path):
-    model = BotModel()
+    model = FC_Model_With_Coordinates()
     optimizer = optim.Adam(model.parameters(), lr=0.005)
     loss_func = nn.CrossEntropyLoss()
     train_x, train_y = load_process_training_data(data_path)
@@ -79,12 +53,10 @@ def train(data_path):
         optimizer.step()
     print(f'Best accuracy achieved at {max_accuracy_epoch}th epoch and the accuracy is {max_accuracy}')
     torch.save(best_model,
-               'C:/Users/harsh/OneDrive/Desktop/Rutgers/Sem1/Intro to AI/Project 3/Robot-Guidance/best-FC-Overfit.pt')
+               'C:/Users/harsh/OneDrive/Desktop/Rutgers/Sem1/Intro to AI/Project 3/Robot-Guidance/best-FC-Overfit-With-Coordinates.pt')
 
     plot_loss_by_epochs(losses)
     plot_loss_by_epochs(accuracies)
-    # test_model(best_model)
-
 
 def edit_wall_cells(ship):
     for i in range(len(ship)):
@@ -107,14 +79,12 @@ def get_probs(logits):
 
 def test_model():
     train_x, train_y = load_process_training_data('train_data.csv')
-    model = BotModel()
-    model.load_state_dict(torch.load('C:/Users/harsh/OneDrive/Desktop/Rutgers/Sem1/Intro to AI/Project 3/Robot-Guidance/best.pt'))
+    model = FC_Model_With_Coordinates()
+    model.load_state_dict(torch.load('C:/Users/harsh/OneDrive/Desktop/Rutgers/Sem1/Intro to AI/Project 3/Robot-Guidance/best-FC-Overfit-With-Coordinates.pt'))
     logits = model(train_x)
     probs = get_probs(logits)
     acc = torch.sum(torch.argmax(train_y, dim=1) == torch.argmax(probs, dim=1)) / train_y.shape[0]
     print(f'Accuracy achieved with the best model is:{acc}')
-
-# def process_data():
 
 if __name__ == '__main__':
     train('train_data.csv')
