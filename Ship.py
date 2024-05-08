@@ -3,7 +3,7 @@ import numpy as np
 
 
 def get_ship():
-    random.seed(20)
+    random.seed(10)
     blocked_cells = [(4, 4), (4, 6), (6, 4), (6, 6)]
     ship = np.full((11, 11), 'O')
     ship[5][5] = 'T'

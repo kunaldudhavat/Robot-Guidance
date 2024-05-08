@@ -1,4 +1,6 @@
 import numpy as np
+from matplotlib import pyplot as plt
+import seaborn as sns
 from Utility import de_vectorize_index_to_2D, is_neighbor, get_num_open_neighbors
 
 
@@ -33,3 +35,23 @@ def evaluate_expected_values(ship):
     expected_time_no_bot = np.where(ship == '#', float('-inf'), expected_time_no_bot)
     expected_time_no_bot = expected_time_no_bot * -1
     print(expected_time_no_bot)
+    get_heatmap(expected_time_no_bot)
+    return expected_time_no_bot
+
+
+def get_heatmap(mat: np.ndarray):
+    mask = np.isinf(mat)
+    cmap = sns.color_palette("viridis", as_cmap=True)
+    cmap.set_bad('black')
+    plt.figure(figsize=(8, 8))
+    sns.heatmap(mat, mask=mask, annot=True, fmt=".1f", cmap=cmap, linewidths=0.5)
+    plt.title('Heatmap of Expected Time Values')
+    plt.show()
+
+
+def get_expected_time(expected_time_no_bot_array):
+    finite_values_mask = np.isfinite(expected_time_no_bot_array)
+    filtered_values = expected_time_no_bot_array[finite_values_mask]
+    # As the probability is uniformly 1/107 we can directly take the mean of the time for the non-blocked cells as the
+    # expected value for the time
+    return np.mean(filtered_values)
