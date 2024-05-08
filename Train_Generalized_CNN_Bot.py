@@ -13,10 +13,13 @@ from matplotlib import pyplot as plt
 from Ship import get_ship
 from sklearn.model_selection import train_test_split
 
-def test_train_split(x,y):
-    train_x, test_x, train_y, test_y = train_test_split(x,y, test_size=0.2, random_state=42)
+
+def test_train_split(x, y):
+    train_x, test_x, train_y, test_y = train_test_split(x, y, test_size=0.2, random_state=42)
     return torch.tensor(train_x), torch.tensor(test_x), torch.tensor(train_y), torch.tensor(test_y)
-def load_process_training_data(train_data_path: str,random_seed:int):
+
+
+def load_process_training_data(train_data_path: str, random_seed: int):
     df = pd.read_csv(train_data_path)
     random.seed(random_seed)
     ship = get_ship()
@@ -24,40 +27,41 @@ def load_process_training_data(train_data_path: str,random_seed:int):
     df = df.dropna()
     train_x = df.drop('Optimal_Direction', axis=1).drop('Unnamed: 0', axis=1)
     train_y = df['Optimal_Direction']
-    train_y = train_y.astype(pd.CategoricalDtype(categories=['STAY', 'RIGHT', 'LEFT', 'DOWN', 'UP', 'NW', 'SW', 'SE', 'NE']))
+    train_y = train_y.astype(
+        pd.CategoricalDtype(categories=['STAY', 'RIGHT', 'LEFT', 'DOWN', 'UP', 'NW', 'SW', 'SE', 'NE']))
     train_y = pd.get_dummies(train_y)
     train_x = torch.from_numpy(train_x.values).float()
     train_y = torch.from_numpy(train_y.values).float()
     tensor = torch.ones(())
-    train_ship_x = tensor.new_empty(size=(train_x.shape[0], 5,13,13), dtype=float)
+    train_ship_x = tensor.new_empty(size=(train_x.shape[0], 5, 13, 13), dtype=float)
     for i in range(train_x.shape[0]):
         temp_ship = padded_ship.copy()
         bot_x, bot_y, crew_x, crew_y = train_x[i]
-        temp_ship[int(bot_x.item())+1][int(bot_y.item())+1] = 'B'
-        temp_ship[int(crew_x.item())+1][int(crew_y.item())+1] = 'C'
+        temp_ship[int(bot_x.item()) + 1][int(bot_y.item()) + 1] = 'B'
+        temp_ship[int(crew_x.item()) + 1][int(crew_y.item()) + 1] = 'C'
         df = pd.DataFrame(temp_ship.reshape((169)))
-        df = df.astype(pd.CategoricalDtype(categories=['B','C','T','#','O']))
+        df = df.astype(pd.CategoricalDtype(categories=['B', 'C', 'T', '#', 'O']))
         temp_ship_int = pd.get_dummies(df)
-        temp_ship_int = temp_ship_int.values.reshape((13,13,5))
-        temp_ship_int = np.transpose(temp_ship_int,(2,0,1))
+        temp_ship_int = temp_ship_int.values.reshape((13, 13, 5))
+        temp_ship_int = np.transpose(temp_ship_int, (2, 0, 1))
         train_ship_x[i] = torch.tensor(temp_ship_int)
     return train_ship_x, train_y
 
 
-def load_data_from_files(files:dict[str,int]):
+def load_data_from_files(files: dict[str, int]):
     merged_train_x = None
     merged_train_y = None
     print('Collecting the data for all files and then merging')
     for file_name in files:
         print(f'Loading data from {file_name} file and processing it')
-        train_x, train_y = load_process_training_data(file_name, 10+files[file_name])
+        train_x, train_y = load_process_training_data(file_name, 10 + files[file_name])
         print(f'Processed data from {file_name} file')
         if merged_train_x is None:
             merged_train_x = train_x
             merged_train_y = train_y
         else:
-            merged_train_x = np.concatenate((merged_train_x,train_x),axis=0)
-            merged_train_y = np.concatenate((merged_train_y,train_y),axis=0)
+            merged_train_x = np.concatenate((merged_train_x, train_x), axis=0)
+            merged_train_y = np.concatenate((merged_train_y, train_y), axis=0)
         print(f'Merged processed data from file {file_name}')
     return torch.tensor(merged_train_x), torch.tensor(merged_train_y)
 
@@ -66,6 +70,7 @@ def train(files):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model = Generalized_CNN()
     model.to(device)
+    print(f"Running training on: {device}")
     inputs, labels = load_data_from_files(files)
     train_x, test_x, train_y, test_y = test_train_split(inputs, labels)
     train_x = train_x.to(device)
@@ -73,8 +78,8 @@ def train(files):
     train_y = train_y.to(device)
     test_y = test_y.to(device)
     loss_func = nn.CrossEntropyLoss()
-    optimizer = optim.Adam(model.parameters(), lr=0.02)
-    epochs = 10000
+    optimizer = optim.Adam(model.parameters(), lr=0.01)
+    epochs = 2000
     print(f'Shape of train x is {train_x.shape}')
     print(f'Shape of train y is {train_y.shape}')
     print(f'Shape of test x is {test_x.shape}')
@@ -103,14 +108,14 @@ def train(files):
         accuracies.append(acc)
         loss.backward()
         optimizer.step()
-        print(f'Completed epoch number {i} in {time.time()-start_time} seconds')
+        print(f'Completed epoch number {i} in {time.time() - start_time} seconds')
     print(f'Best accuracy achieved at {max_accuracy_epoch}th epoch and the accuracy is {max_accuracy}')
     torch.save(best_model,
                '/common/home/kd958/PycharmProjects/Robot-Guidance/best-CNN-Generalizing.pt')
 
     plot_loss_by_epochs(losses, 'training_losses.png')
     plot_loss_by_epochs(accuracies, 'training_accuracies.png')
-    test_model(best_model,test_x, test_y)
+    test_model(best_model, test_x, test_y)
 
 
 def edit_wall_cells(ship):
@@ -121,7 +126,7 @@ def edit_wall_cells(ship):
     return ship
 
 
-def plot_loss_by_epochs(losses, file_name = 'plot.png'):
+def plot_loss_by_epochs(losses, file_name='plot.png'):
     # First, check if losses is a list and convert to tensor if it is
     if isinstance(losses, list):
         losses = torch.tensor(losses, dtype=torch.float32)  # Ensuring the data type is suitable for conversion
@@ -136,6 +141,7 @@ def plot_loss_by_epochs(losses, file_name = 'plot.png'):
     plt.plot(epochs, losses)
     plt.savefig(file_name)
     plt.close()
+
 
 def get_probs(logits):
     return nn.Softmax(dim=1)(logits)
@@ -152,27 +158,31 @@ def test_model(model_file, test_x, test_y):
     acc = torch.sum(torch.argmax(test_y, dim=1) == torch.argmax(probs, dim=1)) / test_y.shape[0]
     print(f'Accuracy achieved with the best model on test data is:{acc}')
 
+
 # def process_data():
 
 if __name__ == '__main__':
     files = {
-        'Data_for_Generalizing_0.csv':0,
-        'Data_for_Generalizing_1.csv':1,
-        'Data_for_Generalizing_2.csv':2,
-        'Data_for_Generalizing_3.csv':3,
-        'Data_for_Generalizing_4.csv':4,
-        'Data_for_Generalizing_5.csv':5,
-        'Data_for_Generalizing_6.csv':6,
-        'Data_for_Generalizing_7.csv':7,
-        'Data_for_Generalizing_8.csv':8,
-        'Data_for_Generalizing_9.csv':9,
-        'Data_for_Generalizing_10.csv':10,
-        'Data_for_Generalizing_11.csv':11,
-        'Data_for_Generalizing_12.csv':12,
-        'Data_for_Generalizing_13.csv':13,
-        'Data_for_Generalizing_14.csv':14,
-        'Data_for_Generalizing_15.csv':15,
-        'Data_for_Generalizing_16.csv':16
+        'Data_for_Generalizing_0.csv': 0,
+        'Data_for_Generalizing_1.csv': 1,
+        'Data_for_Generalizing_2.csv': 2,
+        'Data_for_Generalizing_3.csv': 3,
+        'Data_for_Generalizing_4.csv': 4,
+        'Data_for_Generalizing_5.csv': 5,
+        'Data_for_Generalizing_6.csv': 6,
+        'Data_for_Generalizing_7.csv': 7,
+        'Data_for_Generalizing_8.csv': 8,
+        'Data_for_Generalizing_9.csv': 9,
+        # 'Data_for_Generalizing_10.csv': 10,
+        # 'Data_for_Generalizing_11.csv': 11,
+        # 'Data_for_Generalizing_12.csv': 12,
+        # # 'Data_for_Generalizing_13.csv': 13,
+        # # 'Data_for_Generalizing_14.csv': 14,
+        # # 'Data_for_Generalizing_15.csv': 15,
+        # # 'Data_for_Generalizing_16.csv': 16,
+        # # 'Data_for_Generalizing_17.csv': 17,
+        # # 'Data_for_Generalizing_18.csv': 18,
+        # # 'Data_for_Generalizing_19.csv': 19
     }
     train(files)
     # test_model()
