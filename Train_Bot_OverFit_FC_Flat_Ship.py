@@ -17,10 +17,8 @@ def load_process_training_data(train_data_path: str):
         '#': 0,
         'T': 1
     }
-    # 0 for wall cells
     random.seed(10)
     ship = get_ship()
-    # show_tkinter(ship)
     df = df.dropna()
     train_x = df.drop('Optimal_Direction', axis=1).drop('Unnamed: 0', axis=1)
     train_y = df['Optimal_Direction']
@@ -77,7 +75,6 @@ def train(data_path):
 
     plot_loss_by_epochs(losses)
     plot_loss_by_epochs(accuracies)
-    # test_model(best_model)
 
 
 def edit_wall_cells(ship):
@@ -110,4 +107,3 @@ def test_model():
 
 if __name__ == '__main__':
     train('train_data.csv')
-    # test_model()

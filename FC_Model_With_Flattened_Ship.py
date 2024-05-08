@@ -27,5 +27,4 @@ class FC_Model_With_Flattened_Ship(nn.Module):
         output = self.hidden_layer3(output)
         output = self.activation_function(output)
         output = self.output_layer(output)
-        # probs = nn.Softmax(dim=1)(input)
         return output
